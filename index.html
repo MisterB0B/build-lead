@@ -4,149 +4,84 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Build Lead | The Light Park</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #0a0a0f;
-      --surface: #12121a;
-      --surface2: #1a1a25;
-      --border: #2a2a3a;
+      --bg: #0B0D14;
+      --surface: #12151F;
+      --surface2: #1a1e2e;
+      --border: #2a2f42;
       --text: #f0f0f5;
       --text-dim: #8888a0;
       --purple: #a855f7;
       --teal: #06d6a0;
-      --pink: #ec4899;
-      --red: #ef4444;
-      --orange: #f97316;
-      --yellow: #eab308;
+      --pink: #ff4fd8;
       --green: #22c55e;
+      --orange: #f97316;
+      --blue: #3b82f6;
+      --red: #ef4444;
+      --yellow: #eab308;
     }
-    
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    
     body {
-      font-family: 'Inter', sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       background: var(--bg);
       color: var(--text);
       min-height: 100vh;
     }
     
-    #splash {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100vh;
-      background: var(--bg);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 9999;
-      transition: opacity 0.5s;
-    }
-    #splash.hidden { opacity: 0; pointer-events: none; }
-    #splash img { max-width: 80%; max-height: 40vh; }
-    
     .header {
-      background: var(--surface);
-      border-bottom: 1px solid var(--border);
-      padding: 16px 20px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-    }
-    
-    .header-logo { height: 36px; }
-    
-    .venue-selector {
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 10px 14px;
-      color: var(--text);
-      font-size: 14px;
-      font-family: inherit;
-      font-weight: 600;
-    }
-    
-    .progress-bar {
-      height: 4px;
-      background: var(--border);
-    }
-    
-    .progress-fill {
-      height: 100%;
-      background: linear-gradient(90deg, var(--purple), var(--teal));
-      transition: width 0.5s;
-    }
-    
-    .nav {
-      display: flex;
-      gap: 4px;
-      padding: 12px 16px;
-      background: var(--surface);
-      overflow-x: auto;
-      border-bottom: 1px solid var(--border);
-    }
-    
-    .nav-btn {
-      padding: 10px 16px;
-      border-radius: 8px;
-      border: none;
-      background: transparent;
-      color: var(--text-dim);
-      font-size: 13px;
-      font-weight: 500;
-      cursor: pointer;
-      white-space: nowrap;
-    }
-    
-    .nav-btn:hover { background: var(--surface2); color: var(--text); }
-    .nav-btn.active { background: var(--purple); color: #fff; }
-    
-    .main {
+      background: linear-gradient(135deg, var(--orange), var(--red));
       padding: 20px;
-      max-width: 900px;
-      margin: 0 auto;
     }
-    
-    .page { display: none; }
-    .page.active { display: block; }
-    
-    .section {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      margin-bottom: 20px;
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    .header h1 { font-size: 24px; font-weight: 800; }
+    .venue-select {
+      padding: 10px 16px;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 8px;
+      color: white;
+      font-size: 14px;
+    }
+    .progress-bar {
+      background: rgba(255,255,255,0.2);
+      border-radius: 10px;
+      height: 20px;
       overflow: hidden;
     }
-    
-    .section-header {
-      padding: 16px 20px;
-      border-bottom: 1px solid var(--border);
+    .progress-fill {
+      height: 100%;
+      background: white;
+      border-radius: 10px;
       display: flex;
       align-items: center;
-      justify-content: space-between;
+      justify-content: flex-end;
+      padding-right: 10px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--orange);
+    }
+    .progress-label {
+      text-align: center;
+      margin-top: 8px;
+      font-size: 14px;
+      opacity: 0.9;
     }
     
-    .section-title {
-      font-size: 16px;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
+    .container { padding: 20px; }
     
-    .section-body { padding: 16px 20px; }
-    
-    .stats-row {
+    /* Stats */
+    .stats-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      grid-template-columns: repeat(4, 1fr);
       gap: 12px;
-      margin-bottom: 20px;
+      margin-bottom: 24px;
     }
-    
     .stat-card {
       background: var(--surface);
       border: 1px solid var(--border);
@@ -154,604 +89,466 @@
       padding: 16px;
       text-align: center;
     }
+    .stat-value { font-size: 28px; font-weight: 800; }
+    .stat-label { font-size: 11px; color: var(--text-dim); margin-top: 4px; }
     
-    .stat-value {
-      font-size: 28px;
-      font-weight: 700;
-      background: linear-gradient(135deg, var(--purple), var(--teal));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-    
-    .stat-label {
-      font-size: 12px;
-      color: var(--text-dim);
-      margin-top: 4px;
-    }
-    
-    .mission-card {
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 16px;
-      margin-bottom: 12px;
-    }
-    
-    .mission-card.completed {
-      border-color: var(--green);
-      background: rgba(34, 197, 94, 0.05);
-    }
-    
-    .mission-header {
+    /* Tabs */
+    .tabs {
       display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 8px;
+      gap: 4px;
+      margin-bottom: 20px;
+      background: var(--surface);
+      padding: 4px;
+      border-radius: 10px;
     }
-    
-    .mission-checkbox {
-      width: 24px;
-      height: 24px;
-      border: 2px solid var(--border);
-      border-radius: 6px;
+    .tab {
+      flex: 1;
+      padding: 12px;
+      text-align: center;
+      border-radius: 8px;
       cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-    
-    .mission-checkbox:hover { border-color: var(--purple); }
-    .mission-card.completed .mission-checkbox {
-      background: var(--green);
-      border-color: var(--green);
-    }
-    .mission-card.completed .mission-checkbox::after {
-      content: '✓';
-      color: #fff;
-      font-size: 14px;
-    }
-    
-    .mission-title {
+      font-size: 13px;
       font-weight: 600;
-      font-size: 15px;
-    }
-    
-    .mission-card.completed .mission-title {
-      text-decoration: line-through;
       color: var(--text-dim);
+      transition: all 0.2s;
+    }
+    .tab:hover { color: var(--text); }
+    .tab.active {
+      background: var(--purple);
+      color: white;
     }
     
-    .mission-meta {
-      font-size: 13px;
-      color: var(--text-dim);
-      padding-left: 36px;
-    }
-    
-    .info-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 16px;
-    }
-    
-    .info-card {
-      background: var(--surface2);
-      border-radius: 12px;
-      padding: 16px;
-    }
-    
-    .info-card h4 {
-      font-size: 13px;
-      color: var(--text-dim);
-      margin-bottom: 8px;
+    /* Section */
+    .section { margin-bottom: 24px; }
+    .section-title {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 12px;
       display: flex;
       align-items: center;
       gap: 8px;
     }
     
-    .info-card p {
-      font-size: 15px;
-      font-weight: 500;
+    /* Today's Mission */
+    .mission-card {
+      background: linear-gradient(135deg, var(--surface), var(--surface2));
+      border: 2px solid var(--purple);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 24px;
     }
-    
-    .info-card a {
-      color: var(--teal);
-      text-decoration: none;
+    .mission-title {
+      font-size: 20px;
+      font-weight: 800;
+      margin-bottom: 8px;
+      color: var(--purple);
     }
-    
-    .timeline {
-      position: relative;
-      padding-left: 24px;
+    .mission-desc { color: var(--text-dim); margin-bottom: 16px; }
+    .mission-goals {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 12px;
     }
-    
-    .timeline::before {
-      content: '';
-      position: absolute;
-      left: 8px;
-      top: 0;
-      bottom: 0;
-      width: 2px;
-      background: var(--border);
-    }
-    
-    .timeline-item {
-      position: relative;
-      padding-bottom: 20px;
-    }
-    
-    .timeline-item::before {
-      content: '';
-      position: absolute;
-      left: -20px;
-      top: 4px;
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      background: var(--surface2);
-      border: 2px solid var(--border);
-    }
-    
-    .timeline-item.current::before {
-      background: var(--purple);
-      border-color: var(--purple);
-      box-shadow: 0 0 12px rgba(168, 85, 247, 0.5);
-    }
-    
-    .timeline-item.done::before {
-      background: var(--green);
-      border-color: var(--green);
-    }
-    
-    .timeline-date {
-      font-size: 12px;
-      color: var(--text-dim);
-      margin-bottom: 4px;
-    }
-    
-    .timeline-title {
-      font-weight: 600;
-      font-size: 14px;
-    }
-    
-    .content-checklist {
-      margin-top: 8px;
-    }
-    
-    .content-item {
+    .goal-item {
       display: flex;
       align-items: center;
       gap: 10px;
-      padding: 10px 0;
-      border-bottom: 1px solid var(--border);
+      padding: 12px;
+      background: var(--surface);
+      border-radius: 8px;
     }
-    
-    .content-item:last-child { border-bottom: none; }
-    
-    .content-check {
-      width: 20px;
-      height: 20px;
+    .goal-check {
+      width: 24px;
+      height: 24px;
       border: 2px solid var(--border);
-      border-radius: 4px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       cursor: pointer;
-      flex-shrink: 0;
     }
-    
-    .content-check.checked {
+    .goal-check.done {
       background: var(--green);
       border-color: var(--green);
+      color: white;
+    }
+    .goal-text { font-size: 14px; }
+    .goal-text.done { text-decoration: line-through; color: var(--text-dim); }
+    
+    /* Zone List */
+    .zone-list { display: flex; flex-direction: column; gap: 12px; }
+    .zone-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .zone-icon { font-size: 32px; }
+    .zone-info { flex: 1; }
+    .zone-name { font-weight: 700; font-size: 15px; }
+    .zone-detail { font-size: 12px; color: var(--text-dim); }
+    .zone-progress {
+      width: 120px;
+      text-align: right;
+    }
+    .zone-pct { font-size: 24px; font-weight: 800; }
+    .zone-bar {
+      height: 6px;
+      background: var(--border);
+      border-radius: 3px;
+      margin-top: 6px;
+      overflow: hidden;
+    }
+    .zone-bar-fill { height: 100%; background: var(--green); }
+    
+    /* Crew List */
+    .crew-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 12px;
+    }
+    .crew-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+    }
+    .crew-avatar {
+      width: 56px;
+      height: 56px;
+      background: linear-gradient(135deg, var(--purple), var(--teal));
+      border-radius: 50%;
+      margin: 0 auto 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 18px;
+    }
+    .crew-name { font-weight: 700; font-size: 14px; }
+    .crew-role { font-size: 12px; color: var(--text-dim); }
+    .crew-task {
+      margin-top: 8px;
+      padding: 6px 10px;
+      background: var(--surface2);
+      border-radius: 6px;
+      font-size: 11px;
     }
     
-    .content-label {
-      font-size: 14px;
+    /* Issues */
+    .issue-item {
+      display: flex;
+      gap: 12px;
+      padding: 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      margin-bottom: 10px;
+    }
+    .issue-priority {
+      width: 4px;
+      border-radius: 2px;
+    }
+    .issue-high { background: var(--red); }
+    .issue-medium { background: var(--orange); }
+    .issue-low { background: var(--yellow); }
+    .issue-content { flex: 1; }
+    .issue-title { font-weight: 600; font-size: 14px; }
+    .issue-meta { font-size: 12px; color: var(--text-dim); }
+    
+    .btn {
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      font-size: 13px;
+    }
+    .btn-primary { background: var(--purple); color: white; }
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text);
     }
     
-    @media (max-width: 600px) {
-      .stats-row { grid-template-columns: repeat(2, 1fr); }
-      .info-grid { grid-template-columns: 1fr; }
+    @media (max-width: 768px) {
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .tabs { flex-wrap: wrap; }
+      .tab { flex: none; width: calc(50% - 2px); }
     }
   </style>
 </head>
 <body>
-  <div id="splash">
-    <img src="logo.jpg" alt="Build Lead">
+  <div class="header">
+    <div class="header-top">
+      <h1>🏗️ Build Lead</h1>
+      <select class="venue-select" id="venueSelect">
+        <option value="katy">📍 Katy</option>
+        <option value="spring">📍 Spring</option>
+        <option value="selma">📍 Selma</option>
+      </select>
+    </div>
+    <div class="progress-bar">
+      <div class="progress-fill" style="width: 67%;">67%</div>
+    </div>
+    <div class="progress-label">Build Progress: Day 8 of 12</div>
   </div>
   
-  <header class="header">
-    <img src="logo.jpg" alt="Build Lead" class="header-logo">
-    <select class="venue-selector" id="venueSelect">
-      <option>📍 Katy</option>
-      <option>📍 Spring</option>
-      <option>📍 Selma</option>
-      <option>📍 Missions</option>
-      <option>📍 Arlington</option>
-      <option>📍 Frisco</option>
-      <option>📍 Round Rock</option>
-      <option>📍 Oklahoma City</option>
-    </select>
-  </header>
-  
-  <div class="progress-bar">
-    <div class="progress-fill" style="width: 65%;"></div>
+  <div class="container">
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-value" style="color: var(--green);">156</div>
+        <div class="stat-label">Props Installed</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" style="color: var(--orange);">84</div>
+        <div class="stat-label">Remaining</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" style="color: var(--purple);">12</div>
+        <div class="stat-label">Crew On-Site</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" style="color: var(--teal);">4</div>
+        <div class="stat-label">Days Left</div>
+      </div>
+    </div>
+    
+    <div class="tabs">
+      <div class="tab active" onclick="showTab('mission')">🎯 Today</div>
+      <div class="tab" onclick="showTab('zones')">📍 Zones</div>
+      <div class="tab" onclick="showTab('crew')">👷 Crew</div>
+      <div class="tab" onclick="showTab('issues')">⚠️ Issues</div>
+    </div>
+    
+    <!-- Today Tab -->
+    <div id="tab-mission" class="tab-content">
+      <div class="mission-card">
+        <div class="mission-title">🎯 Today's Mission</div>
+        <div class="mission-desc">Complete Gnome Village + Start RGB Tunnel installation</div>
+        <div class="mission-goals">
+          <div class="goal-item">
+            <div class="goal-check done" onclick="toggleGoal(this)">✓</div>
+            <span class="goal-text done">Morning crew briefing</span>
+          </div>
+          <div class="goal-item">
+            <div class="goal-check done" onclick="toggleGoal(this)">✓</div>
+            <span class="goal-text done">Finish Gnome B section (6 units)</span>
+          </div>
+          <div class="goal-item">
+            <div class="goal-check" onclick="toggleGoal(this)"></div>
+            <span class="goal-text">Start RGB Tunnel frame assembly</span>
+          </div>
+          <div class="goal-item">
+            <div class="goal-check" onclick="toggleGoal(this)"></div>
+            <span class="goal-text">Wire RGB Tunnel power (100A circuit)</span>
+          </div>
+          <div class="goal-item">
+            <div class="goal-check" onclick="toggleGoal(this)"></div>
+            <span class="goal-text">Test Gnome Village full sequence</span>
+          </div>
+          <div class="goal-item">
+            <div class="goal-check" onclick="toggleGoal(this)"></div>
+            <span class="goal-text">End of day safety walk</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="section">
+        <div class="section-title">📋 Zone Status</div>
+        <div class="zone-list">
+          <div class="zone-card">
+            <div class="zone-icon">🎄</div>
+            <div class="zone-info">
+              <div class="zone-name">Mega Tree Plaza</div>
+              <div class="zone-detail">32/32 props • Power tested ✓</div>
+            </div>
+            <div class="zone-progress">
+              <div class="zone-pct" style="color:var(--green);">100%</div>
+              <div class="zone-bar"><div class="zone-bar-fill" style="width:100%"></div></div>
+            </div>
+          </div>
+          <div class="zone-card">
+            <div class="zone-icon">🧝</div>
+            <div class="zone-info">
+              <div class="zone-name">Gnome Village</div>
+              <div class="zone-detail">20/24 props • 4 remaining today</div>
+            </div>
+            <div class="zone-progress">
+              <div class="zone-pct" style="color:var(--orange);">83%</div>
+              <div class="zone-bar"><div class="zone-bar-fill" style="width:83%"></div></div>
+            </div>
+          </div>
+          <div class="zone-card">
+            <div class="zone-icon">🌈</div>
+            <div class="zone-info">
+              <div class="zone-name">RGB Tunnel</div>
+              <div class="zone-detail">Starting today • 48 props total</div>
+            </div>
+            <div class="zone-progress">
+              <div class="zone-pct" style="color:var(--red);">0%</div>
+              <div class="zone-bar"><div class="zone-bar-fill" style="width:0%"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Zones Tab -->
+    <div id="tab-zones" class="tab-content" style="display:none;">
+      <div class="zone-list">
+        <div class="zone-card">
+          <div class="zone-icon">🎄</div>
+          <div class="zone-info">
+            <div class="zone-name">Mega Tree Plaza</div>
+            <div class="zone-detail">32 props • Zone A</div>
+          </div>
+          <div class="zone-progress">
+            <div class="zone-pct" style="color:var(--green);">100%</div>
+          </div>
+        </div>
+        <div class="zone-card">
+          <div class="zone-icon">🧝</div>
+          <div class="zone-info">
+            <div class="zone-name">Gnome Village</div>
+            <div class="zone-detail">24 props • Zone B</div>
+          </div>
+          <div class="zone-progress">
+            <div class="zone-pct" style="color:var(--orange);">83%</div>
+          </div>
+        </div>
+        <div class="zone-card">
+          <div class="zone-icon">🌈</div>
+          <div class="zone-info">
+            <div class="zone-name">RGB Tunnel</div>
+            <div class="zone-detail">48 props • Zone C</div>
+          </div>
+          <div class="zone-progress">
+            <div class="zone-pct" style="color:var(--red);">0%</div>
+          </div>
+        </div>
+        <div class="zone-card">
+          <div class="zone-icon">🎅</div>
+          <div class="zone-info">
+            <div class="zone-name">Santa's Workshop</div>
+            <div class="zone-detail">36 props • Zone D</div>
+          </div>
+          <div class="zone-progress">
+            <div class="zone-pct" style="color:var(--yellow);">50%</div>
+          </div>
+        </div>
+        <div class="zone-card">
+          <div class="zone-icon">❄️</div>
+          <div class="zone-info">
+            <div class="zone-name">Winter Wonderland</div>
+            <div class="zone-detail">44 props • Zone E</div>
+          </div>
+          <div class="zone-progress">
+            <div class="zone-pct" style="color:var(--yellow);">25%</div>
+          </div>
+        </div>
+        <div class="zone-card">
+          <div class="zone-icon">🦌</div>
+          <div class="zone-info">
+            <div class="zone-name">Reindeer Run</div>
+            <div class="zone-detail">28 props • Zone F</div>
+          </div>
+          <div class="zone-progress">
+            <div class="zone-pct" style="color:var(--text-dim);">0%</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Crew Tab -->
+    <div id="tab-crew" class="tab-content" style="display:none;">
+      <div class="crew-grid">
+        <div class="crew-card">
+          <div class="crew-avatar">JM</div>
+          <div class="crew-name">Jake Martinez</div>
+          <div class="crew-role">Build Lead</div>
+          <div class="crew-task">📍 RGB Tunnel setup</div>
+        </div>
+        <div class="crew-card">
+          <div class="crew-avatar">EM</div>
+          <div class="crew-name">Eddie Morales</div>
+          <div class="crew-role">Electrician</div>
+          <div class="crew-task">⚡ Tunnel power wiring</div>
+        </div>
+        <div class="crew-card">
+          <div class="crew-avatar">SC</div>
+          <div class="crew-name">Sarah Chen</div>
+          <div class="crew-role">Install Tech</div>
+          <div class="crew-task">🧝 Gnome B finishing</div>
+        </div>
+        <div class="crew-card">
+          <div class="crew-avatar">MR</div>
+          <div class="crew-name">Mike Rodriguez</div>
+          <div class="crew-role">Install Tech</div>
+          <div class="crew-task">🧝 Gnome B finishing</div>
+        </div>
+        <div class="crew-card">
+          <div class="crew-avatar">TB</div>
+          <div class="crew-name">Tyler Brown</div>
+          <div class="crew-role">Network Tech</div>
+          <div class="crew-task">📡 WiFi mesh setup</div>
+        </div>
+        <div class="crew-card">
+          <div class="crew-avatar">AL</div>
+          <div class="crew-name">Ana Lopez</div>
+          <div class="crew-role">Install Tech</div>
+          <div class="crew-task">🎅 Workshop prep</div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Issues Tab -->
+    <div id="tab-issues" class="tab-content" style="display:none;">
+      <div class="issue-item">
+        <div class="issue-priority issue-high"></div>
+        <div class="issue-content">
+          <div class="issue-title">RGB Tunnel power drop missing</div>
+          <div class="issue-meta">Need 100A circuit • Electrician requested</div>
+        </div>
+        <button class="btn btn-outline">Escalate</button>
+      </div>
+      <div class="issue-item">
+        <div class="issue-priority issue-medium"></div>
+        <div class="issue-content">
+          <div class="issue-title">Gnome B #7 controller DOA</div>
+          <div class="issue-meta">Replacement ordered • ETA tomorrow</div>
+        </div>
+        <button class="btn btn-outline">Update</button>
+      </div>
+      <div class="issue-item">
+        <div class="issue-priority issue-low"></div>
+        <div class="issue-content">
+          <div class="issue-title">Extra stakes needed for Zone E</div>
+          <div class="issue-meta">Added to next supply run</div>
+        </div>
+        <button class="btn btn-outline">Done</button>
+      </div>
+      <button class="btn btn-primary" style="width:100%; margin-top:16px;">➕ Report Issue</button>
+    </div>
   </div>
-  
-  <nav class="nav">
-    <button class="nav-btn active" onclick="showPage('overview')">📊 Overview</button>
-    <button class="nav-btn" onclick="showPage('missions')">🎯 Daily Missions</button>
-    <button class="nav-btn" onclick="showPage('schedule')">📅 Schedule</button>
-    <button class="nav-btn" onclick="showPage('info')">📋 Venue Info</button>
-    <button class="nav-btn" onclick="showPage('content')">📸 Content</button>
-    <button class="nav-btn" onclick="showPage('contacts')">📞 Contacts</button>
-  </nav>
-  
-  <main class="main">
-    
-    <!-- Overview -->
-    <div class="page active" id="overview">
-      <div class="stats-row">
-        <div class="stat-card">
-          <div class="stat-value">65%</div>
-          <div class="stat-label">Build Progress</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-value">Day 12</div>
-          <div class="stat-label">of 21</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-value">18/24</div>
-          <div class="stat-label">Today's Tasks</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-value">9</div>
-          <div class="stat-label">Days Left</div>
-        </div>
-      </div>
-      
-      <div class="section">
-        <div class="section-header">
-          <h3 class="section-title">📅 Build Timeline</h3>
-        </div>
-        <div class="section-body">
-          <div class="timeline">
-            <div class="timeline-item done">
-              <div class="timeline-date">Oct 1-3</div>
-              <div class="timeline-title">Site Prep & Layout</div>
-            </div>
-            <div class="timeline-item done">
-              <div class="timeline-date">Oct 4-8</div>
-              <div class="timeline-title">Infrastructure & Power</div>
-            </div>
-            <div class="timeline-item current">
-              <div class="timeline-date">Oct 9-15</div>
-              <div class="timeline-title">Prop Installation</div>
-            </div>
-            <div class="timeline-item">
-              <div class="timeline-date">Oct 16-18</div>
-              <div class="timeline-title">Lighting & Programming</div>
-            </div>
-            <div class="timeline-item">
-              <div class="timeline-date">Oct 19-21</div>
-              <div class="timeline-title">Testing & Punch List</div>
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      <div class="section">
-        <div class="section-header">
-          <h3 class="section-title">🎯 Today's Priority</h3>
-        </div>
-        <div class="section-body">
-          <div class="mission-card">
-            <div class="mission-header">
-              <div class="mission-checkbox" onclick="toggleMission(this)"></div>
-              <div class="mission-title">Complete Section 3 prop placement</div>
-            </div>
-            <div class="mission-meta">12 props remaining · Tunnel entrance area</div>
-          </div>
-          <div class="mission-card">
-            <div class="mission-header">
-              <div class="mission-checkbox" onclick="toggleMission(this)"></div>
-              <div class="mission-title">Test power circuits for Section 2</div>
-            </div>
-            <div class="mission-meta">Verify all 8 circuits · Safety check required</div>
-          </div>
-        </div>
-      </div>
-    </div>
-    
-    <!-- Daily Missions -->
-    <div class="page" id="missions">
-      <div class="section">
-        <div class="section-header">
-          <h3 class="section-title">🎯 October 12 - Daily Missions</h3>
-          <span style="color: var(--teal); font-size: 14px; font-weight: 600;">18/24</span>
-        </div>
-        <div class="section-body">
-          <div class="mission-card completed">
-            <div class="mission-header">
-              <div class="mission-checkbox"></div>
-              <div class="mission-title">Morning team briefing</div>
-            </div>
-            <div class="mission-meta">7:00 AM · Completed</div>
-          </div>
-          <div class="mission-card completed">
-            <div class="mission-header">
-              <div class="mission-checkbox"></div>
-              <div class="mission-title">Unload truck #3 - Section 3 props</div>
-            </div>
-            <div class="mission-meta">8 props · Completed 9:15 AM</div>
-          </div>
-          <div class="mission-card completed">
-            <div class="mission-header">
-              <div class="mission-checkbox"></div>
-              <div class="mission-title">Position gnome cluster (Zone 3A)</div>
-            </div>
-            <div class="mission-meta">6 units · Completed 11:30 AM</div>
-          </div>
-          <div class="mission-card">
-            <div class="mission-header">
-              <div class="mission-checkbox" onclick="toggleMission(this)"></div>
-              <div class="mission-title">Install candy cane archway</div>
-            </div>
-            <div class="mission-meta">Zone 3B · In progress</div>
-          </div>
-          <div class="mission-card">
-            <div class="mission-header">
-              <div class="mission-checkbox" onclick="toggleMission(this)"></div>
-              <div class="mission-title">Run power cables to Section 3</div>
-            </div>
-            <div class="mission-meta">400ft run · Pending</div>
-          </div>
-          <div class="mission-card">
-            <div class="mission-header">
-              <div class="mission-checkbox" onclick="toggleMission(this)"></div>
-              <div class="mission-title">End of day photo documentation</div>
-            </div>
-            <div class="mission-meta">All active zones · Before sunset</div>
-          </div>
-        </div>
-      </div>
-    </div>
-    
-    <!-- Schedule -->
-    <div class="page" id="schedule">
-      <div class="section">
-        <div class="section-header">
-          <h3 class="section-title">📅 Build Schedule - Katy</h3>
-        </div>
-        <div class="section-body">
-          <div class="timeline">
-            <div class="timeline-item done">
-              <div class="timeline-date">Week 1 (Oct 1-7)</div>
-              <div class="timeline-title">Site prep, stakes, infrastructure</div>
-            </div>
-            <div class="timeline-item current">
-              <div class="timeline-date">Week 2 (Oct 8-14)</div>
-              <div class="timeline-title">Prop installation - Sections 1-4</div>
-            </div>
-            <div class="timeline-item">
-              <div class="timeline-date">Week 3 (Oct 15-21)</div>
-              <div class="timeline-title">Lighting, programming, testing</div>
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      <div class="section">
-        <div class="section-header">
-          <h3 class="section-title">👷 Team Schedule Today</h3>
-        </div>
-        <div class="section-body">
-          <div class="info-grid">
-            <div class="info-card">
-              <h4>🌅 Morning Shift (7AM-3PM)</h4>
-              <p>Jake, Maria, Tom, Derek</p>
-            </div>
-            <div class="info-card">
-              <h4>🌆 Evening Shift (3PM-11PM)</h4>
-              <p>Sarah, Mike, Rosa, Chris</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    
-    <!-- Venue Info -->
-    <div class="page" id="info">
-      <div class="section">
-        <div class="section-header">
-          <h3 class="section-title">📋 Katy Venue Information</h3>
-        </div>
-        <div class="section-body">
-          <div class="info-grid">
-            <div class="info-card">
-              <h4>📍 Address</h4>
-              <p>Katy Mills Mall<br>5000 Katy Mills Circle<br>Katy, TX 77494</p>
-            </div>
-            <div class="info-card">
-              <h4>🏠 Crew Housing</h4>
-              <p>Hampton Inn Katy<br>Room Block: "Light Park Build"<br><a href="#">View Details →</a></p>
-            </div>
-            <div class="info-card">
-              <h4>🚗 Equipment Storage</h4>
-              <p>South Lot Container<br>Code: 4521<br>24hr access</p>
-            </div>
-            <div class="info-card">
-              <h4>⚡ Power Contact</h4>
-              <p>CenterPoint Energy<br>Account: LP-KATY-2026<br><a href="#">Service Request →</a></p>
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      <div class="section">
-        <div class="section-header">
-          <h3 class="section-title">🗺️ Build Drawings</h3>
-        </div>
-        <div class="section-body">
-          <div class="info-grid">
-            <div class="info-card">
-              <h4>📄 Site Layout</h4>
-              <p><a href="#">Katy_Layout_v3.pdf →</a></p>
-            </div>
-            <div class="info-card">
-              <h4>⚡ Power Plan</h4>
-              <p><a href="#">Katy_Power_v2.pdf →</a></p>
-            </div>
-            <div class="info-card">
-              <h4>🎪 Prop Placement</h4>
-              <p><a href="#">Katy_Props_v4.pdf →</a></p>
-            </div>
-            <div class="info-card">
-              <h4>🚗 Traffic Flow</h4>
-              <p><a href="#">Katy_Traffic_v2.pdf →</a></p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    
-    <!-- Content Checklist -->
-    <div class="page" id="content">
-      <div class="section">
-        <div class="section-header">
-          <h3 class="section-title">📸 Content Shot List</h3>
-          <span style="color: var(--teal); font-size: 14px; font-weight: 600;">8/15 Captured</span>
-        </div>
-        <div class="section-body">
-          <p style="font-size: 13px; color: var(--text-dim); margin-bottom: 16px;">
-            Capture these shots during the build. Check off as completed.
-          </p>
-          <div class="content-checklist">
-            <div class="content-item">
-              <div class="content-check checked" onclick="this.classList.toggle('checked')"></div>
-              <span class="content-label">📍 Empty site "before" shot</span>
-            </div>
-            <div class="content-item">
-              <div class="content-check checked" onclick="this.classList.toggle('checked')"></div>
-              <span class="content-label">🚛 First truck arrival</span>
-            </div>
-            <div class="content-item">
-              <div class="content-check checked" onclick="this.classList.toggle('checked')"></div>
-              <span class="content-label">📦 Prop unloading action shots</span>
-            </div>
-            <div class="content-item">
-              <div class="content-check checked" onclick="this.classList.toggle('checked')"></div>
-              <span class="content-label">👷 Team working - wide shots</span>
-            </div>
-            <div class="content-item">
-              <div class="content-check checked" onclick="this.classList.toggle('checked')"></div>
-              <span class="content-label">🔧 Close-up detail work</span>
-            </div>
-            <div class="content-item">
-              <div class="content-check checked" onclick="this.classList.toggle('checked')"></div>
-              <span class="content-label">⏱️ Timelapse setup (daily)</span>
-            </div>
-            <div class="content-item">
-              <div class="content-check checked" onclick="this.classList.toggle('checked')"></div>
-              <span class="content-label">🎪 First prop standing</span>
-            </div>
-            <div class="content-item">
-              <div class="content-check checked" onclick="this.classList.toggle('checked')"></div>
-              <span class="content-label">☀️ Golden hour shots</span>
-            </div>
-            <div class="content-item">
-              <div class="content-check" onclick="this.classList.toggle('checked')"></div>
-              <span class="content-label">🚁 Drone aerial progress</span>
-            </div>
-            <div class="content-item">
-              <div class="content-check" onclick="this.classList.toggle('checked')"></div>
-              <span class="content-label">🌙 First night test</span>
-            </div>
-            <div class="content-item">
-              <div class="content-check" onclick="this.classList.toggle('checked')"></div>
-              <span class="content-label">✨ Lights on reveal moment</span>
-            </div>
-            <div class="content-item">
-              <div class="content-check" onclick="this.classList.toggle('checked')"></div>
-              <span class="content-label">👥 Team celebration shot</span>
-            </div>
-            <div class="content-item">
-              <div class="content-check" onclick="this.classList.toggle('checked')"></div>
-              <span class="content-label">🎬 "It's ready" final walk</span>
-            </div>
-            <div class="content-item">
-              <div class="content-check" onclick="this.classList.toggle('checked')"></div>
-              <span class="content-label">⏱️ Full timelapse compilation</span>
-            </div>
-            <div class="content-item">
-              <div class="content-check" onclick="this.classList.toggle('checked')"></div>
-              <span class="content-label">📱 BTS stories/reels</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    
-    <!-- Contacts -->
-    <div class="page" id="contacts">
-      <div class="section">
-        <div class="section-header">
-          <h3 class="section-title">📞 Key Contacts</h3>
-        </div>
-        <div class="section-body">
-          <div class="info-grid">
-            <div class="info-card">
-              <h4>🏗️ Build Manager</h4>
-              <p>Michael Johnson<br>(555) 123-4567</p>
-            </div>
-            <div class="info-card">
-              <h4>📋 Ops Lead</h4>
-              <p>Sarah Chen<br>(555) 234-5678</p>
-            </div>
-            <div class="info-card">
-              <h4>🏢 Venue Contact</h4>
-              <p>Katy Mills - Dave<br>(555) 345-6789</p>
-            </div>
-            <div class="info-card">
-              <h4>⚡ Electrical</h4>
-              <p>PowerPro Electric<br>(555) 456-7890</p>
-            </div>
-            <div class="info-card">
-              <h4>🚛 Trucking</h4>
-              <p>Fleet Dispatch<br>(555) 567-8901</p>
-            </div>
-            <div class="info-card">
-              <h4>🆘 Emergency</h4>
-              <p>Site Safety Line<br>(555) 911-0000</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    
-  </main>
   
   <script>
-    setTimeout(() => document.getElementById('splash').classList.add('hidden'), 1500);
-    
-    // === BACKUP FUNCTION (APP STANDARD) ===
-    function backupAllData() {
-      try {
-        const backup = { version: '2026.02.06', app: 'build-lead', exportedAt: new Date().toISOString(), localStorage: JSON.stringify(localStorage) };
-        const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = `build-lead-backup-${new Date().toISOString().split('T')[0]}.json`;
-        a.click();
-        alert('✅ Backup downloaded!');
-      } catch(e) { alert('Backup error: ' + e.message); }
-    }
-    
-    function showPage(id) {
-      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-      document.getElementById(id).classList.add('active');
+    function showTab(tab) {
+      document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
+      document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+      document.getElementById(`tab-${tab}`).style.display = 'block';
       event.target.classList.add('active');
     }
     
-    function toggleMission(el) {
-      el.closest('.mission-card').classList.toggle('completed');
+    function toggleGoal(el) {
+      el.classList.toggle('done');
+      const text = el.nextElementSibling;
+      text.classList.toggle('done');
+      el.textContent = el.classList.contains('done') ? '✓' : '';
     }
   </script>
 </body>
