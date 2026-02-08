@@ -575,6 +575,103 @@
   </div>
   
   <script>
+    // Build progress tracking
+    let buildProgress = [];
+    let employees = [];
+    
+    // Get current venue
+    function getCurrentVenue() {
+      const select = document.querySelector('.venue-select');
+      return select ? select.value : 'Pearland';
+    }
+    
+    // Initialize
+    async function init() {
+      await loadEmployees();
+      await loadProgress();
+      renderProgress();
+    }
+    
+    // Load employees from shared Employee App
+    async function loadEmployees() {
+      if (!window.TLPStaffSync) return;
+      
+      try {
+        const allEmployees = await TLPStaffSync.getStaff() || [];
+        // Filter for build roles
+        employees = allEmployees.filter(e => 
+          ['Build Lead', 'Install Tech', 'Electrician', 'Network Tech'].some(role => 
+            e.role.toLowerCase().includes(role.toLowerCase())
+          )
+        );
+        console.log('[Build Lead] Loaded', employees.length, 'build crew from Employee App');
+      } catch (e) {
+        console.error('[Build Lead] Could not load employees:', e);
+      }
+    }
+    
+    // Load build progress from cloud
+    async function loadProgress() {
+      if (!window.TLPBuildSync) {
+        const local = localStorage.getItem('tlp_build-progress');
+        if (local) {
+          buildProgress = JSON.parse(local);
+        }
+        return;
+      }
+      
+      try {
+        buildProgress = await TLPBuildSync.getProgress() || [];
+        console.log('[Build Lead] Loaded', buildProgress.length, 'progress items');
+      } catch (e) {
+        console.error('[Build Lead] Could not load progress:', e);
+      }
+    }
+    
+    // Save build progress to cloud
+    async function saveProgress() {
+      // Save locally
+      localStorage.setItem('tlp_build-progress', JSON.stringify(buildProgress));
+      
+      // Sync to cloud
+      if (window.TLPBuildSync) {
+        try {
+          await TLPBuildSync.saveProgress(buildProgress);
+          console.log('[Build Lead] ✓ Progress synced to cloud');
+        } catch (e) {
+          console.error('[Build Lead] Sync failed:', e);
+        }
+      }
+    }
+    
+    // Update zone progress
+    function updateZoneProgress(zone, percentComplete, notes) {
+      const existing = buildProgress.find(p => p.zone === zone && p.venue === getCurrentVenue());
+      
+      if (existing) {
+        existing.percentComplete = percentComplete;
+        existing.notes = notes || existing.notes;
+        existing.updatedAt = new Date().toISOString();
+      } else {
+        buildProgress.push({
+          id: Date.now().toString(36),
+          venue: getCurrentVenue(),
+          zone: zone,
+          status: percentComplete === 100 ? 'complete' : 'in-progress',
+          percentComplete: percentComplete,
+          notes: notes || '',
+          updatedAt: new Date().toISOString()
+        });
+      }
+      
+      saveProgress();
+      renderProgress();
+    }
+    
+    function renderProgress() {
+      // Could update zone cards dynamically based on buildProgress
+    }
+    
     function showTab(tab) {
       document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
       document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
@@ -587,10 +684,15 @@
       const text = el.nextElementSibling;
       text.classList.toggle('done');
       el.textContent = el.classList.contains('done') ? '✓' : '';
+      
+      // Could trigger progress update here
     }
     
     // Hide splash after 2s
     setTimeout(() => document.getElementById('splash').classList.add('hidden'), 2000);
+    
+    // Start
+    init();
   </script>
 </body>
 </html>
