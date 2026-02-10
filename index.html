@@ -316,6 +316,7 @@
       .tab { flex: none; width: calc(50% - 2px); }
     }
   </style>
+  <script src="supabase-sync.js"></script>
 </head>
 <body>
   <!-- Splash -->
@@ -323,7 +324,10 @@
     <img src="logo.jpg" alt="The Light Park Build Lead">
   </div>
   
-  <div class="header">
+  <div class="header" style="position: relative; padding-top: 50px;">
+      <a href="https://thelightparkops.com" style="position: absolute; top: 20px; left: 20px; color: #a855f7; text-decoration: none; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 6px; transition: all 0.2s; z-index: 10;" onmouseover="this.style.color='#06d6a0'" onmouseout="this.style.color='#a855f7'">
+        ← Dashboard
+      </a>
     <div class="header-top">
       <h1>🏗️ Build Lead</h1>
       <select class="venue-select" id="venueSelect">
