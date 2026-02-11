@@ -5,11 +5,95 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <script>
-    const TLP_SUPABASE_URL = 'https://gwjtfcrgpxclixonogpe.supabase.co';
-    const TLP_SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd3anRmY3JncHhjbGl4b25vZ3BlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAzMzQzOTUsImV4cCI6MjA4NTkxMDM5NX0.qM1-_VA1Dsx_nsWkeoAJvNWNgSuuwApPBGoJU32X3-I';
-    const APP_NAME = 'build_lead';
-    window.CloudSync = { online: navigator.onLine, async save(k,d) { localStorage.setItem(APP_NAME+"_"+k, JSON.stringify(d)); if(!this.online)return{synced:false}; try{const e=await fetch(TLP_SUPABASE_URL+"/rest/v1/app_data?app_data=eq."+APP_NAME+"&data_key=eq."+k+"&select=id",{headers:{"apikey":TLP_SUPABASE_KEY,"Authorization":"Bearer "+TLP_SUPABASE_KEY}}).then(r=>r.json());const m=e.length>0?"PATCH":"POST";const u=e.length>0?TLP_SUPABASE_URL+"/rest/v1/app_data?id=eq."+e[0].id:TLP_SUPABASE_URL+"/rest/v1/app_data";await fetch(u,{method:m,headers:{"apikey":TLP_SUPABASE_KEY,"Authorization":"Bearer "+TLP_SUPABASE_KEY,"Content-Type":"application/json"},body:JSON.stringify(e.length>0?{data:d}:{app_data:APP_NAME,data_key:k,data:d})});return{synced:true};}catch(x){return{synced:false};}}, async load(k){if(this.online){try{const r=await fetch(TLP_SUPABASE_URL+"/rest/v1/app_data?app_data=eq."+APP_NAME+"&data_key=eq."+k+"&select=data",{headers:{"apikey":TLP_SUPABASE_KEY,"Authorization":"Bearer "+TLP_SUPABASE_KEY}}).then(r=>r.json());if(r.length>0){localStorage.setItem(APP_NAME+"_"+k,JSON.stringify(r[0].data));return r[0].data;}}catch(x){}}const l=localStorage.getItem(APP_NAME+"_"+k);return l?JSON.parse(l):null;}};
-    window.addEventListener("online",()=>CloudSync.online=true);window.addEventListener("offline",()=>CloudSync.online=false);
+    // ═══════════════════════════════════════════════════════════════
+    // SUPABASE DATA LAYER — Build Lead
+    // Cloud-first, localStorage cache fallback
+    // Table: build_progress (proper rows per task/zone)
+    // ═══════════════════════════════════════════════════════════════
+    const SUPABASE_URL = 'https://gwjtfcrgpxclixonogpe.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd3anRmY3JncHhjbGl4b25vZ3BlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAzMzQzOTUsImV4cCI6MjA4NTkxMDM5NX0.qM1-_VA1Dsx_nsWkeoAJvNWNgSuuwApPBGoJU32X3-I';
+    const HEADERS = { apikey: SUPABASE_KEY, Authorization: 'Bearer ' + SUPABASE_KEY, 'Content-Type': 'application/json' };
+    const HEADERS_RO = { apikey: SUPABASE_KEY, Authorization: 'Bearer ' + SUPABASE_KEY };
+
+    async function sbFetch(path, opts = {}) {
+      const res = await fetch(SUPABASE_URL + '/rest/v1/' + path, {
+        headers: opts.body ? { ...HEADERS, ...(opts.headers || {}) } : HEADERS_RO,
+        ...opts, headers: undefined,
+        ...(opts.body ? { headers: { ...HEADERS, ...(opts.headers || {}) } } : { headers: HEADERS_RO })
+      });
+      if (!res.ok) throw new Error(`Supabase ${res.status}: ${await res.text()}`);
+      const text = await res.text();
+      return text ? JSON.parse(text) : null;
+    }
+
+    window.BuildDB = {
+      online: navigator.onLine,
+
+      // Load all tasks for a venue
+      async loadTasks(venue_id) {
+        const cacheKey = 'bp_' + venue_id;
+        try {
+          const rows = await sbFetch(`build_progress?venue_id=eq.${venue_id}&select=*&order=created_at.asc`);
+          localStorage.setItem(cacheKey, JSON.stringify(rows));
+          return rows;
+        } catch (e) {
+          console.error('[BuildDB] loadTasks failed:', e);
+          const cached = localStorage.getItem(cacheKey);
+          return cached ? JSON.parse(cached) : [];
+        }
+      },
+
+      // Upsert a task row
+      async upsertTask(venue_id, task_name, data) {
+        const row = { venue_id, task_name, ...data, updated_at: new Date().toISOString() };
+        try {
+          // Check existing
+          const existing = await sbFetch(`build_progress?venue_id=eq.${venue_id}&task_name=eq.${encodeURIComponent(task_name)}&select=id`);
+          if (existing.length > 0) {
+            await sbFetch(`build_progress?id=eq.${existing[0].id}`, { method: 'PATCH', body: JSON.stringify(row) });
+          } else {
+            await sbFetch('build_progress', { method: 'POST', body: JSON.stringify(row), headers: { ...HEADERS, Prefer: 'return=minimal' } });
+          }
+          if (typeof showToast === 'function') showToast('☁️ Saved to cloud', 'success', 2000);
+          return { synced: true };
+        } catch (e) {
+          console.error('[BuildDB] upsertTask failed:', e);
+          // Cache locally for offline sync
+          const pending = JSON.parse(localStorage.getItem('bp_pending') || '[]');
+          pending.push(row);
+          localStorage.setItem('bp_pending', JSON.stringify(pending));
+          if (typeof showToast === 'function') showToast('📱 Saved locally, will sync when online', 'warning', 3000);
+          return { synced: false };
+        }
+      },
+
+      // Sync pending offline changes
+      async syncPending() {
+        const pending = JSON.parse(localStorage.getItem('bp_pending') || '[]');
+        if (pending.length === 0) return;
+        const failed = [];
+        for (const row of pending) {
+          try {
+            await this.upsertTask(row.venue_id, row.task_name, row);
+          } catch (e) { failed.push(row); }
+        }
+        localStorage.setItem('bp_pending', JSON.stringify(failed));
+        if (failed.length === 0) console.log('[BuildDB] All pending synced');
+      },
+
+      // Get summary stats for a venue
+      async getStats(venue_id) {
+        const tasks = await this.loadTasks(venue_id);
+        const total = tasks.length;
+        const completed = tasks.filter(t => t.status === 'complete').length;
+        const inProgress = tasks.filter(t => t.status === 'in-progress').length;
+        const blocked = tasks.filter(t => t.status === 'blocked').length;
+        return { total, completed, inProgress, blocked, pct: total > 0 ? Math.round(completed / total * 100) : 0 };
+      }
+    };
+
+    window.addEventListener('online', () => { BuildDB.online = true; BuildDB.syncPending(); });
+    window.addEventListener('offline', () => { BuildDB.online = false; });
   </script>
   <!-- Unified Cloud Sync -->
     <script src="https://thelightparkops.com/shared/cloud-sync.js"></script>
@@ -586,123 +670,138 @@
   </div>
   
   <script>
-    // Build progress tracking
+    // ═══════════════════════════════════════════════════════════════
+    // Build Lead — App Logic (Supabase-backed)
+    // ═══════════════════════════════════════════════════════════════
     let buildProgress = [];
-    let employees = [];
-    
-    // Get current venue
+    let syncStatusEl = null;
+
     function getCurrentVenue() {
       const select = document.querySelector('.venue-select');
-      return select ? select.value : 'Pearland';
+      return select ? select.value : 'katy';
     }
-    
-    // Initialize
+
+    function updateSyncBadge(synced) {
+      if (!syncStatusEl) {
+        syncStatusEl = document.createElement('span');
+        syncStatusEl.style.cssText = 'font-size:10px;margin-left:8px;';
+        document.querySelector('.header h1').after(syncStatusEl);
+      }
+      syncStatusEl.textContent = synced ? '☁️ Synced' : '📱 Local';
+      syncStatusEl.style.color = synced ? '#06d6a0' : '#8888a0';
+    }
+
+    // Toast system
+    (function(){
+      const c=document.createElement('div');c.id='toasts';
+      c.style.cssText='position:fixed;top:20px;right:20px;z-index:10000;display:flex;flex-direction:column;gap:10px;max-width:340px;';
+      document.body.appendChild(c);
+      window.showToast=function(msg,type='info',dur=4000){
+        const colors={success:'rgba(6,214,160,0.95)',error:'rgba(239,68,68,0.95)',warning:'rgba(249,115,22,0.95)',info:'rgba(168,85,247,0.95)'};
+        const t=document.createElement('div');
+        t.style.cssText=`background:${colors[type]||colors.info};color:white;padding:14px 18px;border-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,0.3);font-size:14px;`;
+        t.textContent=msg;c.appendChild(t);setTimeout(()=>t.remove(),dur);
+      };
+    })();
+
     async function init() {
-      await loadEmployees();
+      await loadProgress();
+      renderProgress();
+      // Poll for updates every 15s
+      setInterval(async () => {
+        await loadProgress();
+        renderProgress();
+      }, 15000);
+      // Listen for venue change
+      document.getElementById('venueSelect').addEventListener('change', async () => {
+        await loadProgress();
+        renderProgress();
+      });
+    }
+
+    async function loadProgress() {
+      const venue = getCurrentVenue();
+      try {
+        buildProgress = await BuildDB.loadTasks(venue);
+        updateSyncBadge(true);
+        console.log('[Build Lead] Loaded', buildProgress.length, 'tasks from Supabase');
+      } catch (e) {
+        console.error('[Build Lead] Load failed:', e);
+        updateSyncBadge(false);
+      }
+    }
+
+    // Update zone progress → writes to build_progress table
+    async function updateZoneProgress(zone, status, notes) {
+      const venue = getCurrentVenue();
+      const result = await BuildDB.upsertTask(venue, zone, {
+        category: 'zone',
+        status: status,
+        notes: notes || '',
+        completed_at: status === 'complete' ? new Date().toISOString() : null,
+        completed_by: window.currentUserProfile?.display_name || 'Build Lead'
+      });
+      updateSyncBadge(result.synced);
       await loadProgress();
       renderProgress();
     }
-    
-    // Load employees from shared Employee App
-    async function loadEmployees() {
-      if (!window.TLPStaffSync) return;
-      
-      try {
-        const allEmployees = await TLPStaffSync.getStaff() || [];
-        // Filter for build roles
-        employees = allEmployees.filter(e => 
-          ['Build Lead', 'Install Tech', 'Electrician', 'Network Tech'].some(role => 
-            e.role.toLowerCase().includes(role.toLowerCase())
-          )
-        );
-        console.log('[Build Lead] Loaded', employees.length, 'build crew from Employee App');
-      } catch (e) {
-        console.error('[Build Lead] Could not load employees:', e);
-      }
-    }
-    
-    // Load build progress from cloud
-    async function loadProgress() {
-      if (!window.TLPBuildSync) {
-        const local = localStorage.getItem('tlp_build-progress');
-        if (local) {
-          buildProgress = JSON.parse(local);
-        }
-        return;
-      }
-      
-      try {
-        buildProgress = await TLPBuildSync.getProgress() || [];
-        console.log('[Build Lead] Loaded', buildProgress.length, 'progress items');
-      } catch (e) {
-        console.error('[Build Lead] Could not load progress:', e);
-      }
-    }
-    
-    // Save build progress to cloud
-    async function saveProgress() {
-      // Save locally
-      localStorage.setItem('tlp_build-progress', JSON.stringify(buildProgress));
-      
-      // Sync to cloud
-      if (window.TLPBuildSync) {
-        try {
-          await TLPBuildSync.saveProgress(buildProgress);
-          console.log('[Build Lead] ✓ Progress synced to cloud');
-        } catch (e) {
-          console.error('[Build Lead] Sync failed:', e);
-        }
-      }
-    }
-    
-    // Update zone progress
-    function updateZoneProgress(zone, percentComplete, notes) {
-      const existing = buildProgress.find(p => p.zone === zone && p.venue === getCurrentVenue());
-      
-      if (existing) {
-        existing.percentComplete = percentComplete;
-        existing.notes = notes || existing.notes;
-        existing.updatedAt = new Date().toISOString();
-      } else {
-        buildProgress.push({
-          id: Date.now().toString(36),
-          venue: getCurrentVenue(),
-          zone: zone,
-          status: percentComplete === 100 ? 'complete' : 'in-progress',
-          percentComplete: percentComplete,
-          notes: notes || '',
-          updatedAt: new Date().toISOString()
-        });
-      }
-      
-      saveProgress();
-      renderProgress();
-    }
-    
+
     function renderProgress() {
-      // Could update zone cards dynamically based on buildProgress
+      // Update zone cards with real data from Supabase
+      const zones = document.querySelectorAll('.zone-card');
+      zones.forEach(card => {
+        const zoneName = card.querySelector('.zone-name')?.textContent;
+        if (!zoneName) return;
+        const task = buildProgress.find(t => t.task_name === zoneName);
+        if (task) {
+          const pctEl = card.querySelector('.zone-pct');
+          const barEl = card.querySelector('.zone-bar-fill');
+          const detailEl = card.querySelector('.zone-detail');
+          const pct = task.status === 'complete' ? 100 : task.status === 'in-progress' ? 50 : 0;
+          if (pctEl) {
+            pctEl.textContent = pct + '%';
+            pctEl.style.color = pct === 100 ? 'var(--green)' : pct > 0 ? 'var(--orange)' : 'var(--red)';
+          }
+          if (barEl) barEl.style.width = pct + '%';
+          if (detailEl && task.notes) detailEl.textContent = task.notes;
+        }
+      });
+      // Update header progress bar
+      if (buildProgress.length > 0) {
+        const completed = buildProgress.filter(t => t.status === 'complete').length;
+        const pct = Math.round(completed / buildProgress.length * 100);
+        const fill = document.querySelector('.progress-fill');
+        const label = document.querySelector('.progress-label');
+        if (fill) { fill.style.width = pct + '%'; fill.textContent = pct + '%'; }
+        if (label) label.textContent = `Build Progress: ${completed}/${buildProgress.length} tasks complete`;
+      }
     }
-    
+
     function showTab(tab) {
       document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
       document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
       document.getElementById(`tab-${tab}`).style.display = 'block';
       event.target.classList.add('active');
     }
-    
+
     function toggleGoal(el) {
       el.classList.toggle('done');
       const text = el.nextElementSibling;
       text.classList.toggle('done');
       el.textContent = el.classList.contains('done') ? '✓' : '';
-      
-      // Could trigger progress update here
+      // Save goal completion to Supabase
+      const goalText = text.textContent.trim();
+      const isDone = el.classList.contains('done');
+      BuildDB.upsertTask(getCurrentVenue(), 'goal:' + goalText, {
+        category: 'daily-goal',
+        status: isDone ? 'complete' : 'pending',
+        completed_at: isDone ? new Date().toISOString() : null,
+        completed_by: window.currentUserProfile?.display_name || 'Build Lead'
+      });
     }
-    
+
     // Hide splash after 2s
     setTimeout(() => document.getElementById('splash').classList.add('hidden'), 2000);
-    
-    // Start
     init();
   </script>
 </body>
