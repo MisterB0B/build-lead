@@ -13,7 +13,9 @@
   </script>
   <!-- Unified Cloud Sync -->
     <script src="https://thelightparkops.com/shared/cloud-sync.js"></script>
-  <script src="https://thelightparkops.com/shared/auth.js"></script>
+  <script src="/shared/supabase-auth.js"></script>
+  <script src="/shared/activity-logger.js"></script>
+  <script src="/shared/auth-gate.js" data-app="Build Lead" data-icon="🏗️"></script>
   <script src="https://thelightparkops.com/shared/permissions.js"></script>
     <title>Build Lead | The Light Park</title>
   <style>
@@ -336,7 +338,10 @@
         <option value="selma">📍 Selma</option>
       </select>
     </div>
-    <div class="progress-bar">
+    <div style="margin-top: 12px; text-align: center;">
+      <a href="https://thelightparkops.com/venue-layout-map/" target="_blank" style="display: inline-block; padding: 12px 24px; background: linear-gradient(135deg, #a855f7, #06d6a0); color: white; text-decoration: none; border-radius: 8px; font-weight: 600; box-shadow: 0 4px 12px rgba(168, 85, 247, 0.3);">🗺️ View Lane Map & Placement Codes</a>
+    </div>
+    <div class="progress-bar" style="margin-top: 16px;">
       <div class="progress-fill" style="width: 67%;">67%</div>
     </div>
     <div class="progress-label">Build Progress: Day 8 of 12</div>
